@@ -1,0 +1,51 @@
+#VEXcode Generated Robot Configuration
+from vex import *
+import urandom
+import math
+
+# Default Brain
+brain=Brain()
+controller = Controller()
+
+# Left Motors
+left_motor1 = Motor(Ports.PORT1,GearSetting.RATIO_18_1, False)
+left_motor2 = Motor(Ports.PORT2,GearSetting.RATIO_18_1, True)
+left_motor3 = Motor(Ports.PORT3,GearSetting.RATIO_18_1, False)
+
+# Right Motors
+right_motor1 = Motor(Ports.PORT6,GearSetting.RATIO_18_1, True)
+right_motor2 = Motor(Ports.PORT5,GearSetting.RATIO_18_1, False)
+right_motor3 = Motor(Ports.PORT4,GearSetting.RATIO_18_1, True)
+
+# Toggle Motor
+toggle_motor = Motor(Ports.PORT7,GearSetting.RATIO_18_1, True)
+
+# Drive Connections
+left_drive = MotorGroup(left_motor1, left_motor2, left_motor3)
+right_drive = MotorGroup(right_motor1, right_motor2, right_motor3)
+
+
+def driver_control():
+    while True:
+        forward = -controller.axis3.position() # left stick, up/down = drive
+        turn = -controller.axis1.position() # right stick, left/right = turn 
+
+        left_speed = forward + turn
+        right_speed = forward - turn
+
+        left_speed = max(-100, min(100, left_speed))
+        right_speed = max(-100, min(100, right_speed))
+
+        left_drive.spin(FORWARD, left_speed, PERCENT)
+        right_drive.spin(FORWARD, right_speed, PERCENT)
+
+        if controller.buttonL1.pressing():
+                toggle_motor.spin(FORWARD, 100, PERCENT)
+        elif controller.buttonL2.pressing():
+            toggle_motor.spin(REVERSE, 100, PERCENT)
+        else:
+            toggle_motor.stop()
+        sleep(20)
+        wait(20,MSEC)
+
+driver_control()
